@@ -1,0 +1,112 @@
+---
+title: "Teste de médias com ggboxplot"
+description: "Inserir teste de médias no grafico de box plot com package 'ggpubr'"
+author script: 
+  - name: "Ítalo Marques-Monteiro"
+url:
+     github: https://github.com/italomarquesmonteiro
+     kaggle: https://www.kaggle.com/talomarquesmonteiro
+     linkedin: linkedin.com/in/ítalo-monteiro-0b2516144
+     lattes: http://lattes.cnpq.br/7174985368517137
+     orcid_id: https://orcid.org/0000-0003-4367-1034
+affiliation: Anhanguera College  
+        - Department: Veterinary Medicine
+date: "2022-06-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*package* [{`tidyverse`}](https://www.tidyverse.org) possui um ecossistema de packages:
+                           ->[{`ggplot2`}](https://ggplot2.tidyverse.org/).
+                            ->[{`tibble`}](https://tibble.tidyverse.org/).
+                             ->[{`tidyr`}](https://tidyr.tidyverse.org/).
+                              ->[{`dplyr`}](https://dplyr.tidyverse.org/).
+                               ->[{`readr`}](https://readr.tidyverse.org/).
+                                ->[{`purrr`}](https://purrr.tidyverse.org/).
+                                 ->[{`forcats`}](https://forcats.tidyverse.org/).
+
+*package* [{`ggpubr`}](https://rpkgs.datanovia.com/ggpubr/) fornece algumas funções fáceis de usar para criar e personalizar gráficos prontos para publicação baseados em 'ggplot2'
+
+package
+```{r}
+library(tidyverse)
+library(ggpubr)
+```
+
+[{`rnorm`}](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/Normal.html)
+    -> O comprimento do resultado é determinado por `n` para *rnorm* e é o máximo dos comprimentos dos argumentos numéricos para as outras funções.
+
+criando números aleatórios com ditribuições normais
+```{r}
+var1 <- rnorm(100, 10)
+var2 <- rnorm(100, 5)
+var3 <- rnorm(100, 3)
+```
+
+[{`pivot_longer()`}](https://tidyr.tidyverse.org/reference/pivot_longer.html?q=PIVOT_LONGER#null)
+    -> "alonga" os dados, aumentando o número de linhas e diminuindo o número de colunas. 
+    -> A transformação inversa é *pivot_wider()*
+
+criar conjunto de dados
+```{r}
+dataset <- tibble::tibble(var1, var2, var3)
+dataset <- dataset |>
+    tidyr::pivot_longer(
+        cols = everything(),
+        names_to = "x",
+        values_to = "y")
+dataset
+```
+
+modelo ANOVA
+```{r}
+modelo <- aov(y ~ x, data = dataset)
+summary(modelo)
+
+TukeyHSD(modelo, "x", ordered = TRUE)
+plot(TukeyHSD(modelo, "x"))
+```
+
+[{`stat_compare_means()`}](http://rpkgs.datanovia.com/ggpubr/reference/stat_compare_means.html) 
+    -> *definição* uma cadeia de caracteres indicando qual método deve ser usado para comparar médias.
+    -> *method* = Os métodos permitidos são: 
+                                            t.test, 
+                                            wilcox.test, 
+                                            anova, 
+                                            kruskal.test
+[{`ggboxplot`}](http://rpkgs.datanovia.com/ggpubr/reference/ggboxplot.html)
+```{r}
+figure_ggboxplot <- dataset |>
+    ggboxplot(x = "x", y = "y", fill = "x") +
+    stat_compare_means(method = "t.test", comparisons = list(
+        c("var1", "var2"),
+        c("var2", "var3"),
+        c("var1", "var3"))) +
+    theme(legend.position = "right") +
+    theme_bw() +
+    labs(fill = "Variable") +
+    labs(x = "Variable x", y = "Variable y") +
+    theme(legend.title = element_text(size = 16),
+        legend.text = element_text(size = 14),
+        axis.title.x = element_text(size = 16),
+        axis.title.y = element_text(size = 16),
+        axis.text.y = element_text(size = 13,
+            color = "black"), 
+        axis.text.x = element_text(size = 12,
+            color = "black")) +
+  annotate("text",
+                x = 3,
+                y = 16,
+                label = "t.test",
+                color = "black")
+figure_ggboxplot
+
+ggsave("figure_ggboxplot.png",
+    plot = figure_ggboxplot,
+    dpi = 600, 
+    width = 7, 
+    height = 5)
+```
