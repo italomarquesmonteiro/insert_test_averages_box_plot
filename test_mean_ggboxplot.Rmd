@@ -3,7 +3,6 @@ title: "Teste de médias com ggboxplot"
 description: "Inserir teste de médias no grafico de box plot com package 'ggpubr'"
 author script: 
   - name: "Ítalo Marques-Monteiro"
-url:
      github: https://github.com/italomarquesmonteiro
      kaggle: https://www.kaggle.com/talomarquesmonteiro
      linkedin: linkedin.com/in/ítalo-monteiro-0b2516144
